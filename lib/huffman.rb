@@ -11,7 +11,10 @@ class Huffman
   end
 
   def compress
+    file = File.open(filename, "rb")
+    frequencies = count_frequencies file
 
+    file.close
   end
 
   def decompress
@@ -22,5 +25,15 @@ class Huffman
 
   def validate_file_presence
     raise Exceptions::FileDoesNotExists.new unless File.exist? filename
+  end
+
+  def count_frequencies file 
+    frequencies = Array.new(256) { |i| 0 }
+
+    file.each do |line| 
+      line.each_byte { |b| frequencies[b] += 1 }
+    end
+
+    frequencies
   end
 end
