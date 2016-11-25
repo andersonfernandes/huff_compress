@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'exceptions/file_does_not_exists'
+require 'exceptions/file_not_found'
 
 class Huffman
   attr_accessor :filename
@@ -24,7 +24,7 @@ class Huffman
   private
 
   def validate_file_presence
-    raise Exceptions::FileDoesNotExists.new unless File.exist? filename
+    raise Exceptions::FileNotFound.new unless File.exist? filename
   end
 
   def count_frequencies file 
