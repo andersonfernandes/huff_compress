@@ -1,4 +1,5 @@
 require 'exceptions/file_not_found'
+require 'base/heap'
 
 class Huffman
   attr_accessor :filename
@@ -12,6 +13,21 @@ class Huffman
   def compress
     file = File.open(filename, "rb")
     frequencies = count_frequencies file
+
+    bytes_heap = Base::Heap.new
+    frequencies.each_with_index do |frequency, index|
+      bytes_heap.push(Base::Node.new index.chr, frequency) if frequency > 0
+    end
+
+    huff_tree = bytes_heap.to_tree    
+    tree_size = huff_tree.inject(0) do |sum, e|
+      sum += 1 if e.leaf? && (e.byte == '*' || e.byte == '\\')
+
+      sum += 1
+    end
+    
+    bit_map = map_bits huff_tree, {}
+    # require "pry"; binding.pry
 
     file.close
   end
@@ -34,5 +50,17 @@ class Huffman
     end
 
     frequencies
+  end
+
+  def map_bits tree, map, bits = ""
+    if tree.leaf?
+      map[tree.byte] = bits
+      return
+    end
+    
+    map_bits tree.left, map, bits+'0'
+    map_bits tree.right, map, bits+'1'
+
+    return map
   end
 end

@@ -29,6 +29,31 @@ module Base
       @elements.clone
     end
 
+    def heap_size
+      @elements.size - 1
+    end
+
+    def to_tree
+      tree = nil
+
+      while heap_size > 0
+        left = pop
+        right = pop
+        frequency = left.frequency
+        frequency += right.frequency if left
+
+        node = Base::Node.new '*', frequency, left: left, right: right
+        
+        if heap_size == 0
+          tree = node
+        else
+          push node
+        end
+      end
+
+      tree
+    end
+
     private
 
     def bubble_up index
