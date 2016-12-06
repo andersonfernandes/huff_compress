@@ -1,3 +1,3 @@
 # huffman-rb
 
-A pure Ruby implementation of the Huffman Coding
+A Ruby implementation of the Huffman Coding

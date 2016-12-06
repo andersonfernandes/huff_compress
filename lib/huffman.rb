@@ -27,8 +27,35 @@ class Huffman
     end
     
     bit_map = map_bits huff_tree, {}
-    # require "pry"; binding.pry
+    
+    extension = File.extname file
+    basename  = File.basename file, extension
 
+    dest_file = File.new  "tmp/#{basename}.huff", 'wb'
+
+    byte_1 = extension.size << 2
+    byte_2 = 0
+
+    if tree_size > 255
+      byte_1 = set_bit(byte_1, 0) if is_bit_i_set?(tree_size, 8)
+      byte_1 = set_bit(byte_1, 1) if is_bit_i_set?(tree_size, 9)
+
+      byte_2 = 255
+    else
+      byte_2 = tree_size
+    end
+
+    dest_file.putc byte_1.chr
+    dest_file.putc byte_2.chr
+    dest_file.write extension
+
+    huff_tree.each do |e|
+      dest_file.putc e.byte
+    end
+
+    # TODO Iterate text and write the new binaries into the file
+
+    dest_file.close
     file.close
   end
 
@@ -62,5 +89,15 @@ class Huffman
     map_bits tree.right, map, bits+'1'
 
     return map
+  end
+
+  def is_bit_i_set? byte, i
+    mask = 1 << i
+    mask & byte
+  end
+
+  def set_bit byte, i
+    mask = 1 << i
+    mask | byte
   end
 end
