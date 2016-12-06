@@ -19,15 +19,15 @@ class Huffman
       bytes_heap.push(Base::Node.new index.chr, frequency) if frequency > 0
     end
 
-    huff_tree = bytes_heap.to_tree    
+    huff_tree = bytes_heap.to_tree
     tree_size = huff_tree.inject(0) do |sum, e|
       sum += 1 if e.leaf? && (e.byte == '*' || e.byte == '\\')
 
       sum += 1
     end
-    
+
     bit_map = map_bits huff_tree, {}
-    
+
     extension = File.extname file
     basename  = File.basename file, extension
 
@@ -49,11 +49,9 @@ class Huffman
     dest_file.putc byte_2.chr
     dest_file.write extension
 
-    huff_tree.each do |e|
-      dest_file.putc e.byte
-    end
+    huff_tree.each { |e| dest_file.putc e.byte }
 
-    # TODO Iterate text and write the new binaries into the file
+    write_compressed_data file, dest_file, bit_map
 
     dest_file.close
     file.close
@@ -69,12 +67,9 @@ class Huffman
     raise Exceptions::FileNotFound.new unless File.exist? filename
   end
 
-  def count_frequencies file 
+  def count_frequencies file
     frequencies = Array.new(256) { |i| 0 }
-
-    file.each do |line| 
-      line.each_byte { |b| frequencies[b] += 1 }
-    end
+    file.each_byte { |b| frequencies[b] += 1 }
 
     frequencies
   end
@@ -84,11 +79,33 @@ class Huffman
       map[tree.byte] = bits
       return
     end
-    
+
     map_bits tree.left, map, bits+'0'
     map_bits tree.right, map, bits+'1'
 
     return map
+  end
+
+  def write_compressed_data src_file, dest_file, bit_map
+    src_file.rewind
+
+    # TODO Revise this[NOT USING LAST BYTE BUG]
+    byte = 0
+    bit_count = 7
+    src_file.each_byte do |b|
+      new_byte = bit_map[b.chr]
+
+      new_byte.each_char do |c|
+        if bit_count < 0
+          dest_file.putc byte.chr
+          bit_count = 7
+          byte = 0
+        end
+
+        byte = set_bit(byte, bit_count) if c
+        bit_count -= 1
+      end
+    end
   end
 
   def is_bit_i_set? byte, i
