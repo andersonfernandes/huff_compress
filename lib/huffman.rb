@@ -31,7 +31,7 @@ class Huffman
     extension = File.extname file
     basename  = File.basename file, extension
 
-    dest_file = File.new  "tmp/#{basename}.huff", 'wb'
+    dest_file = File.new  "tmp/#{basename}.huff", 'w+b'
 
     byte_1 = extension.size << 2
     byte_2 = 0
@@ -89,7 +89,7 @@ class Huffman
   def write_compressed_data src_file, dest_file, bit_map
     src_file.rewind
 
-    # TODO Revise this[NOT USING LAST BYTE BUG]
+    # TODO Revise this
     byte = 0
     bit_count = 7
     src_file.each_byte do |b|
@@ -102,7 +102,7 @@ class Huffman
           byte = 0
         end
 
-        byte = set_bit(byte, bit_count) if c
+        byte = set_bit(byte, bit_count) if c.to_i == 1
         bit_count -= 1
       end
     end
