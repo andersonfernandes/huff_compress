@@ -50,8 +50,11 @@ class Huffman
     dest_file.write extension
 
     huff_tree.each { |e| dest_file.putc e.byte }
+    trash_size = write_compressed_data file, dest_file, bit_map
 
-    write_compressed_data file, dest_file, bit_map
+    dest_file.rewind
+    byte_1 = byte_1 | (trash_size << 5)
+    dest_file.putc byte_1.chr
 
     dest_file.close
     file.close
@@ -86,13 +89,19 @@ class Huffman
     return map
   end
 
+  # This method will write the new bytes on the destination file and will the trash size on the last byte
   def write_compressed_data src_file, dest_file, bit_map
     src_file.rewind
 
-    # TODO Revise this
     byte = 0
     bit_count = 7
     src_file.each_byte do |b|
+
+      if src_file.eof?
+        dest_file.putc byte.chr
+        return bit_count+1
+      end
+
       new_byte = bit_map[b.chr]
 
       new_byte.each_char do |c|
