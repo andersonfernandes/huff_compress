@@ -3,8 +3,10 @@ require_relative 'node'
 module Base
   class Heap
 
-    def initialize
+    def initialize frequencies = []
       @elements = [nil]
+
+      create_frequencies_heap frequencies unless frequencies.empty?
     end
 
     def push element
@@ -17,7 +19,7 @@ module Base
       exchange 1, @elements.size - 1
       max = @elements.pop
 
-      bubble_down 1 
+      bubble_down 1
       max
     end
 
@@ -43,7 +45,7 @@ module Base
         frequency += right.frequency if left
 
         node = Base::Node.new '*', frequency, left: left, right: right
-        
+
         if heap_size == 0
           tree = node
         else
@@ -56,19 +58,25 @@ module Base
 
     private
 
-    def bubble_up index
-      parent = (index / 2)
+    def create_frequencies_heap frequencies
+      frequencies.each_with_index do |frequency, index|
+        push(Base::Node.new index.chr, frequency) if frequency > 0
+      end
+    end
 
-      return if index <= 1
-      return if @elements[parent].frequency <= @elements[index].frequency 
+    def bubble_up position
+      parent = (position / 2)
 
-      exchange index, parent
+      return if position <= 1
+      return if @elements[parent].frequency <= @elements[position].frequency
+
+      exchange position, parent
 
       bubble_up parent
     end
 
-    def bubble_down index
-      child = (index * 2)
+    def bubble_down position
+      child = (position * 2)
 
       return if child > @elements.size - 1
 
@@ -77,9 +85,9 @@ module Base
       right_element = @elements[child + 1]
       child += 1 if not_the_last_element && right_element.frequency < left_element.frequency
 
-      return if @elements[index].frequency <= @elements[child].frequency
+      return if @elements[position].frequency <= @elements[child].frequency
 
-      exchange index, child
+      exchange position, child
 
       bubble_down child
     end
