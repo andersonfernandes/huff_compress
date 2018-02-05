@@ -66,6 +66,14 @@ RSpec.describe HuffCompress::Node do
         expect(@result).to eq ['a', 'c']
       end     
     end
+
+    context 'when the tree is a leaf node' do
+      let(:tree)  { HuffCompress::Node.new 'c', 3 }
+
+      it 'result should be [c]' do
+        expect(@result).to eq ['c']
+      end     
+    end
   end
 
   describe '#leaf?' do
