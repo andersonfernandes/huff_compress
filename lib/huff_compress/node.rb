@@ -4,22 +4,21 @@ module HuffCompress
 
     attr_accessor :byte, :frequency, :right, :left
 
-    def initialize byte, frequency, childs = {}
+    def initialize byte, frequency, right: nil, left: nil
       @byte       = byte
       @frequency  = frequency
-
-      @right  = childs[:right]
-      @left   = childs[:left]
+      @right      = right
+      @left       = left
     end
 
     def each &block
       left.each &block if left
       block.call self
-      right.each &block if left
+      right.each &block if right
     end
 
     def leaf?
-      @right.nil? && @left.nil?
+      right.nil? && left.nil?
     end
   end
 end
